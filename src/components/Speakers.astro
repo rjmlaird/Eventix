@@ -27,7 +27,7 @@ const { speakers } = speakersData;
             <div class="speaker-image">
               <img
                 src={speaker.image}
-                alt={speaker.name}
+                alt={`${speaker.name}, ${speaker.title} at ${speaker.company}`}
                 class="img-fluid"
                 loading="lazy"
               />
@@ -35,12 +35,12 @@ const { speakers } = speakersData;
               <div class="speaker-overlay">
                 <div class="social-links">
                   {speaker.social?.linkedin && (
-                    <a href={speaker.social.linkedin} aria-label="LinkedIn">
+                    <a href={speaker.social.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                       <i class="bi bi-linkedin"></i>
                     </a>
                   )}
                   {speaker.social?.twitter && (
-                    <a href={speaker.social.twitter} aria-label="Twitter">
+                    <a href={speaker.social.twitter} target="_blank" rel="noopener noreferrer"  aria-label="Twitter">
                       <i class="bi bi-twitter"></i>
                     </a>
                   )}
