@@ -1,18 +1,4 @@
 ---
-import { fetchIndicoTimetable } from "@/lib/indico";
-import { normaliseAgenda } from "@/lib/normaliseAgenda";
-
-const EVENT_ID = "1234";
-
-const indicoData = await fetchIndicoTimetable(EVENT_ID);
-const sessions = normaliseAgenda(indicoData);
-
-// Group by day
-const days = Object.groupBy(sessions, s => s.day);
-
-// Helper
-const formatTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 ---
 
 <section id="schedule" class="schedule section">
