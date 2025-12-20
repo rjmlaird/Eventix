@@ -1,8 +1,5 @@
 ---
-// Speakers.astro
-import speakersData from "../data/speakers.json";
-
-const { speakers } = speakersData;
+import speakers from "../data/speakers.json";
 ---
 
 <section id="speakers" class="speakers section">
@@ -16,44 +13,48 @@ const { speakers } = speakersData;
   <div class="container" data-aos="fade-up" data-aos-delay="100">
     <div class="row g-4">
 
-      {speakers.map((speaker, index) => (
+      {speakers?.length > 0 ? speakers.map((speaker, index) => (
         <div
           class="col-lg-4 col-md-6"
           data-aos="fade-up"
           data-aos-delay={200 + index * 50}
-          key={speaker.id}
+          key={speaker.id || index}
         >
           <div class="speaker-card">
+
+            {/* Speaker Image */}
             <div class="speaker-image">
               <img
-                src={speaker.image}
-                alt={`${speaker.name}, ${speaker.title} at ${speaker.company}`}
+                src={speaker.image || "/img/default-speaker.webp"}
+                alt={`${speaker.name || "Speaker"}, ${speaker.title || ""} at ${speaker.company || ""}`}
                 class="img-fluid"
                 loading="lazy"
               />
 
+              {/* Social Links */}
               <div class="speaker-overlay">
                 <div class="social-links">
-                  {speaker.social?.linkedin && (
+                  {speaker.social?.linkedin ? (
                     <a href={speaker.social.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                       <i class="bi bi-linkedin"></i>
                     </a>
-                  )}
-                  {speaker.social?.twitter && (
-                    <a href={speaker.social.twitter} target="_blank" rel="noopener noreferrer"  aria-label="Twitter">
+                  ) : null}
+                  {speaker.social?.twitter ? (
+                    <a href={speaker.social.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
                       <i class="bi bi-twitter"></i>
                     </a>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>
 
+            {/* Speaker Content */}
             <div class="speaker-content">
-              <div class="speaker-badge">{speaker.badge}</div>
-              <h4>{speaker.name}</h4>
-              <p class="speaker-title">{speaker.title}</p>
-              <p class="speaker-company">{speaker.company}</p>
-              <p class="speaker-bio">{speaker.bio}</p>
+              {speaker.badge && <div class="speaker-badge">{speaker.badge}</div>}
+              <h4>{speaker.name || "Anonymous"}</h4>
+              <p class="speaker-title">{speaker.title || ""}</p>
+              <p class="speaker-company">{speaker.company || ""}</p>
+              <p class="speaker-bio">{speaker.bio || ""}</p>
 
               {speaker.session?.topic && (
                 <div class="speaker-session">
@@ -61,9 +62,12 @@ const { speakers } = speakersData;
                 </div>
               )}
             </div>
+
           </div>
         </div>
-      ))}
+      )) : (
+        <p>No speakers available at the moment.</p>
+      )}
 
     </div>
   </div>
