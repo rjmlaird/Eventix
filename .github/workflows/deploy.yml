@@ -13,58 +13,69 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js with caching
+      # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
-      # 3. Cache node_modules
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      # 4. Install dependencies
+      # 3. Install dependencies if package.json exists
       - name: Install dependencies
-        run: npm ci
-
-      # 5. Clean previous build
-      - name: Clean dist
-        run: rm -rf dist
-
-      # 6. Build Astro site and add .nojekyll
-      - name: Build site
         run: |
-          npm run build
-          touch dist/.nojekyll
-          echo "Build output:"
-          ls -la dist
+          if [ -f package.json ]; then
+            echo "package.json found → Installing dependencies"
+            npm ci
+          else
+            echo "No package.json found → Skipping npm install"
+          fi
 
-      # 7. Upload artifact for Pages
-      - name: Upload Pages artifact
+      # 4. Build site or copy static files
+      - name: Build site or copy static files
+        run: |
+          # Clean previous output
+          rm -rf dist
+          mkdir dist
+
+          if [ -f package.json ]; then
+            echo "Detected package.json → Running build"
+            npm run build
+          else
+            echo "Static site detected → Copying files"
+            # Copy everything except dist/, .git/, .github/
+            find . -maxdepth 1 \
+              ! -name "dist" \
+              ! -name ".git" \
+              ! -name ".github" \
+              ! -name "." \
+              -exec cp -R {} dist/ \;
+          fi
+
+          # Add .nojekyll to prevent Jekyll processing
+          touch dist/.nojekyll
+
+          echo "Dist directory contents:"
+          ls -al dist
+
+      # 5. Upload artifact for Pages
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
-deploy:
-  runs-on: ubuntu-latest
-  needs: build
-  environment:
-    name: github-pages
-    url: https://spaceimpactforum.com   # optional, for logging / links
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-  steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+    steps:
+      # 6. Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
